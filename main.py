@@ -1,17 +1,11 @@
-import pygame
+from game import Game
+
+if __name__ == "__main__":
+    Game().run()
 
 
-pygame.init()
-
-pygame.display.set_caption("Solar System Viewer")
-screen = pygame.display.set_mode((900,900))
-
-while True:
-    screen.fill(255)
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
-    pygame.display.update()
-    
-#Test Comment
+#Add stars in background for visuals
+#Add a scroll bar to be able to speed up and slow time
+#Add a lock in camera tracker when clicking on a planet,
+#Add camera zoom in, Zoom out
+#Add a "Toggle Names" to display planet names
