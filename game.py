@@ -23,29 +23,40 @@ class Game:
     def _setup_scene(self):
         cx, cy = self.center
 
+        
+        # --- Starfield (create once) ---
+        w, h = self.screen.get_size()
+        # scale stars with screen area; tweak density to taste
+        density = 0.0005   # stars per pixel; 0.0005 ≈ 800 on 1280x720
+        n_stars = int(w * h * density)
+        self.starfield = self.drawer.make_starfield_surface((w, h), n_stars, (255, 255, 255))
+        
+        
+        
+        
         # Choose a unit system. We'll keep it simple:
         # - pixels are distance
         # - seconds are time
         # - masses are arbitrary; tune G to get nice scales
-        sun = Body("Sun", (255,200,0), 150, mass=1500.0, pos=Vec2(cx, cy), vel=Vec2(0,0), trail_len=300)
+        sun = Body("Sun", (255,200,0), 150, mass=3000.0, pos=Vec2(cx, cy), vel=Vec2(0,0), trail_len=300)
 
         # Place Earth-like body at a distance with tangential velocity (vis-viva-ish, tuned)
         earth_r = 360
         # circular speed v = sqrt(G*M/r). We'll estimate using Sun mass only to start:
         G = 100.0
         v_earth = math.sqrt(G * sun.mass / earth_r)
-        earth = Body("Earth", (80,160,255), 8, mass=1.0,
+        earth = Body("Earth", (80,160,255), 8, mass=0.82,
                      pos=Vec2(cx + earth_r, cy),
                      vel=Vec2(0, -v_earth*0.95),   # 0.95 -> slightly elliptical
-                     trail_len=700)
+                     trail_len=3000)
 
         # Mars-ish
         mars_r = 480
         v_mars = math.sqrt(G * sun.mass / mars_r)
-        mars = Body("Mars", (227, 83, 53), 6, mass=0.1,
+        mars = Body("Mars", (227, 83, 53), 4, mass=0.4,
                     pos=Vec2(cx + mars_r, cy),
                     vel=Vec2(0, -v_mars*0.97),
-                    trail_len=700)
+                    trail_len=3000)
         
         # Mercury
         mercury_r = 200
@@ -53,7 +64,7 @@ class Game:
         mercury = Body("Mercury", (200,200,200), 3, mass=0.055,
                     pos=Vec2(cx + mercury_r, cy),
                     vel=Vec2(0, -v_mercury*0.97),
-                    trail_len=700)
+                    trail_len=3000)
         
          # Venus
         venus_r = 280
@@ -61,35 +72,35 @@ class Game:
         venus = Body("Venus", (255,152,15), 8, mass=0.82,
                     pos=Vec2(cx + venus_r, cy),
                     vel=Vec2(0, -v_venus*0.97),
-                    trail_len=700)
+                    trail_len=3000)
         #Jupiter
         jupiter_r = 570
         v_jupiter = math.sqrt(G * sun.mass / jupiter_r)
-        jupiter = Body("Jupiter", (180,180,180), 16, mass=2.9,
+        jupiter = Body("Jupiter", (180,180,180), 22, mass=1.5,
                     pos=Vec2(cx + jupiter_r, cy),
                     vel=Vec2(0, -v_jupiter*0.97),
-                    trail_len=700)
+                    trail_len=3000)
         
         saturn_r = 700
         v_saturn = math.sqrt(G * sun.mass / saturn_r)
-        saturn = Body("Saturn", (255,152,15), 16, mass=2.65,
+        saturn = Body("Saturn", (255,152,15), 22, mass=1.5,
                     pos=Vec2(cx + saturn_r, cy),
                     vel=Vec2(0, -v_saturn*0.97),
-                    trail_len=700)
+                    trail_len=3000)
         
         uranus_r = 840
         v_uranus = math.sqrt(G * sun.mass / uranus_r)
-        uranus = Body("Uranus", (100, 149, 237), 16, mass=1.3,
+        uranus = Body("Uranus", (100, 149, 237), 12, mass=1.3,
                     pos=Vec2(cx + uranus_r, cy),
                     vel=Vec2(0, -v_uranus*0.97),
-                    trail_len=700)
+                    trail_len=3000)
         
         neptune_r = 980
         v_neptune = math.sqrt(G * sun.mass / neptune_r)
-        neptune = Body("Neptune", (0, 71, 171), 16, mass=1.3,
+        neptune = Body("Neptune", (0, 71, 171), 12, mass=1.3,
                     pos=Vec2(cx + neptune_r, cy),
                     vel=Vec2(0, -v_neptune*0.97),
-                    trail_len=700)
+                    trail_len=3000)
         
         
 
@@ -103,11 +114,17 @@ class Game:
 
     def update(self, dt):
         # slow down or speed up sim time as you like:
-        time_scale = 1.0
+        time_scale = 5.0
         self.sim.step(dt * time_scale)
 
     def render(self):
         self.screen.fill("black")
+        
+        #draw stars first
+        if hasattr(self, "starfield") and self.starfield:
+            self.screen.blit(self.starfield, (0, 0))
+        
+        
         for b in self.bodies:
             b.draw(self.drawer, self.screen)
         pygame.display.flip()
